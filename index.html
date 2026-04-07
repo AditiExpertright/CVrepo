@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CV Vendor Tracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh}
+a{color:#185FA5}
+.topbar{background:#fff;border-bottom:1px solid #e0dfd8;padding:0 28px;display:flex;align-items:center;gap:16px;height:54px;position:sticky;top:0;z-index:100}
+.topbar h1{font-size:16px;font-weight:600;color:#1a1a1a}
+.api-pill{font-size:12px;color:#888;background:#f0efe8;padding:2px 10px;border-radius:20px}
+.main{max-width:1120px;margin:0 auto;padding:24px 20px}
+.panel{background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:20px;margin-bottom:16px}
+.panel-title{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:14px}
+label{font-size:12px;color:#666;display:block;margin-bottom:5px}
+input[type=text],input[type=email],input[type=number],input[type=password],input[type=datetime-local],select,textarea{width:100%;padding:8px 11px;font-size:13px;border:1px solid #d0cfc8;border-radius:8px;background:#fff;color:#1a1a1a;font-family:'Segoe UI',Arial,sans-serif;transition:border 0.12s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#888}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.row4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.field{margin-bottom:12px}
+.btn{padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;border:1px solid #c8c7c0;background:#fff;color:#1a1a1a;font-family:'Segoe UI',Arial,sans-serif;font-weight:500;transition:all 0.12s}
+.btn:hover{background:#f0efe8;border-color:#aaa}
+.btn.primary{background:#1a1a1a;color:#fff;border-color:transparent}
+.btn.primary:hover{background:#333}
+.btn.blue{background:#e6f1fb;color:#0C447C;border-color:#b5d4f4}
+.btn.blue:hover{background:#b5d4f4}
+.btn.success{background:#eaf3de;color:#27500A;border-color:#b8d888}
+.btn.danger{color:#a32d2d;border-color:#f09595}
+.btn.danger:hover{background:#fcebeb}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn:disabled{opacity:0.38;cursor:default;pointer-events:none}
+.btn-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tabs{display:flex;border-bottom:1px solid #e0dfd8;margin-bottom:20px;background:#fff;border-radius:12px 12px 0 0;padding:0 4px;overflow-x:auto}
+.tab{padding:12px 16px;font-size:13px;font-weight:500;color:#666;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:all 0.15s}
+.tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a}
+.tab:hover:not(.active){color:#333;background:#f8f7f2;border-radius:8px 8px 0 0}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.tag{display:inline-block;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:500;margin:1px}
+.tag.blue{background:#e6f1fb;color:#0C447C}
+.tag.green{background:#eaf3de;color:#27500A}
+.tag.amber{background:#faeeda;color:#633806}
+.tag.purple{background:#eeedfe;color:#3C3489}
+.tag.teal{background:#e1f5ee;color:#085041}
+.tag.red{background:#fcebeb;color:#a32d2d}
+.tag.gray{background:#f1efe8;color:#444}
+.badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.badge.new{background:#faeeda;color:#633806}
+.badge.saved{background:#eaf3de;color:#27500A}
+.info-box{background:#e6f1fb;border-radius:8px;padding:10px 14px;font-size:12px;color:#0C447C;margin-bottom:12px}
+.warn-box{background:#faeeda;border-radius:8px;padding:9px 13px;font-size:12px;color:#633806;margin-bottom:10px}
+.success-box{background:#eaf3de;border-radius:8px;padding:9px 13px;font-size:12px;color:#27500A;margin-bottom:10px}
+.vendor-card{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid #e0dfd8;border-radius:10px;margin-bottom:8px;background:#fafaf7}
+.v-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;background:#e6f1fb;color:#0C447C}
+.v-info{flex:1;min-width:0}
+.v-name{font-size:13px;font-weight:600;color:#1a1a1a}
+.v-sub{font-size:11px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.dropzone{border:2px dashed #d0cfc8;border-radius:10px;padding:24px;text-align:center;cursor:pointer;background:#fafaf7;transition:all 0.12s}
+.dropzone:hover,.dropzone.over{border-color:#888;background:#fff}
+.dropzone h3{font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
+.dropzone p{font-size:12px;color:#888}
+.dropzone input{display:none}
+.file-chip{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#fafaf7;border:1px solid #e0dfd8;border-radius:8px;margin-bottom:6px}
+.fext{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.fext.pdf{background:#fcebeb;color:#a32d2d}
+.fext.doc{background:#e6f1fb;color:#185FA5}
+.fname{flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fsz{font-size:11px;color:#aaa;flex-shrink:0}
+.rmv{width:18px;height:18px;border-radius:50%;border:1px solid #ddd;background:none;cursor:pointer;font-size:14px;color:#aaa;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rmv:hover{background:#fcebeb;color:#a32d2d;border-color:#f09595}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid #e0dfd8;border-top-color:#1a1a1a;border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pbar{height:4px;background:#e0dfd8;border-radius:2px;overflow:hidden;margin:8px 0}
+.pfill{height:100%;background:#1a1a1a;border-radius:2px;transition:width 0.4s ease}
+.metric-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.metric{background:#fff;border:1px solid #e0dfd8;border-radius:10px;padding:14px}
+.metric-val{font-size:22px;font-weight:600;color:#1a1a1a}
+.metric-lbl{font-size:11px;color:#888;margin-top:3px}
+.tbl-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.tbl th{text-align:left;padding:8px 10px;font-size:11px;font-weight:600;color:#666;border-bottom:1px solid #e0dfd8;background:#f8f7f2;white-space:nowrap}
+.tbl td{padding:8px 10px;border-bottom:1px solid #f0efe8;color:#1a1a1a;vertical-align:top;overflow:hidden;text-overflow:ellipsis}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#fafaf7}
+.script-area{width:100%;height:200px;font-family:'Courier New',monospace;font-size:11px;padding:12px;border:1px solid #e0dfd8;border-radius:8px;background:#f8f7f2;color:#1a1a1a;resize:vertical}
+.bulk-file-row{background:#f8f7f2;border:1px solid #e0dfd8;border-radius:10px;padding:14px;margin-bottom:10px}
+.bulk-file-name{font-size:12px;font-weight:600;color:#1a1a1a;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.interview-card{background:#fff;border:1px solid #e0dfd8;border-radius:10px;padding:16px;margin-bottom:12px}
+.interview-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:8px}
+.round-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.round-badge.selected{background:#eaf3de;color:#27500A}
+.round-badge.rejected{background:#fcebeb;color:#a32d2d}
+.round-badge.hold{background:#faeeda;color:#633806}
+.round-badge.pending{background:#f1efe8;color:#666}
+.round-badge.offered{background:#e1f5ee;color:#085041}
+.timeline{border-left:2px solid #e0dfd8;margin-left:14px;padding-left:16px}
+.tl-item{position:relative;margin-bottom:14px}
+.tl-item:last-child{margin-bottom:0}
+.tl-dot{width:10px;height:10px;border-radius:50%;background:#1a1a1a;position:absolute;left:-21px;top:4px}
+.tl-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tl-feedback{font-size:12px;color:#555;margin-top:5px;line-height:1.6;padding:7px 10px;background:#f8f7f2;border-radius:6px}
+.v-select-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:10px}
+.v-select-row > div{flex:1}
+.new-vendor-form{background:#f5f5f0;border:1px solid #e0dfd8;border-radius:10px;padding:14px;margin-bottom:10px}
+#api-banner{background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:18px 22px;margin-bottom:20px}
+.api-row{display:flex;gap:8px;align-items:center}
+.api-row input{flex:1;padding:8px 12px;font-size:13px;border:1px solid #d0cfc8;border-radius:8px;font-family:monospace;background:#f8f7f2}
+.api-saved{background:#eaf3de;border-radius:8px;padding:10px 14px;font-size:13px;color:#27500A;display:none;align-items:center;gap:8px}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:14px;padding:24px;max-width:540px;width:92%;max-height:90vh;overflow-y:auto;position:relative}
+.modal-title{font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:16px}
+.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#aaa;line-height:1}
+.modal-close:hover{color:#a32d2d}
+.mode-btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid #d0cfc8;background:#f8f7f2;color:#666;transition:all 0.12s}
+.mode-btn.active{background:#1a1a1a;color:#fff;border-color:transparent}
+@media(max-width:640px){.row2,.row3,.row4{grid-template-columns:1fr}.metric-grid{grid-template-columns:1fr 1fr}.main{padding:14px 10px}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>CV Vendor Tracker</h1>
+  <span class="api-pill" id="api-status-top">API key not set</span>
+</div>
+
+<div class="main">
+
+<!-- API Key Banner -->
+<div id="api-banner" class="panel">
+  <div class="panel-title">Anthropic API key</div>
+  <p style="font-size:12px;color:#666;margin-bottom:12px">Stored only in your browser. Get yours at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> &rarr; API Keys.</p>
+  <div class="api-row" id="api-input-row">
+    <input type="password" id="api-key-input" placeholder="sk-ant-api03-..."/>
+    <button class="btn primary" onclick="saveApiKey()">Save key</button>
+  </div>
+  <div class="api-saved" id="api-saved-msg">
+    <span>&#10003;</span><span>API key saved &mdash; AI extraction active</span>
+    <button class="btn sm danger" style="margin-left:auto" onclick="clearApiKey()">Change key</button>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('upload')">Upload CV</div>
+  <div class="tab" onclick="switchTab('vendors')">Vendor master</div>
+  <div class="tab" onclick="switchTab('results')">Extracted data</div>
+  <div class="tab" onclick="switchTab('interviews')">Interview tracker</div>
+  <div class="tab" onclick="switchTab('export')">Export to sheet</div>
+</div>
+
+<!-- ============ UPLOAD TAB ============ -->
+<div class="tab-content active" id="tab-upload">
+
+  <div class="panel">
+    <div class="panel-title">Step 1 &mdash; Select or add vendor</div>
+    <div class="v-select-row">
+      <div><label>Select saved vendor</label>
+        <select id="vendor-select" onchange="onVendorSelect()">
+          <option value="">&#8212; choose a vendor &#8212;</option>
+        </select>
+      </div>
+      <button class="btn sm" id="add-vendor-btn" onclick="toggleAddVendor()">+ Add new vendor</button>
+    </div>
+    <div id="v-preview" style="display:none;margin-bottom:10px"></div>
+    <div id="new-vendor-form" style="display:none">
+      <div class="new-vendor-form">
+        <div style="font-size:12px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px">New vendor <span class="badge new">NEW</span></div>
+        <div class="row3">
+          <div class="field" style="margin-bottom:0"><label>Vendor name *</label><input type="text" id="nv-name" placeholder="e.g. TCS, Wipro"/></div>
+          <div class="field" style="margin-bottom:0"><label>Phone *</label><input type="text" id="nv-phone" placeholder="+91 98765 43210"/></div>
+          <div class="field" style="margin-bottom:0"><label>Email *</label><input type="email" id="nv-email" placeholder="contact@vendor.com"/></div>
+        </div>
+        <div class="row2" style="margin-top:10px">
+          <div class="field" style="margin-bottom:0"><label>Company</label><input type="text" id="nv-company" placeholder="Optional"/></div>
+          <div class="field" style="margin-bottom:0"><label>Technology focus</label><input type="text" id="nv-tech" placeholder="e.g. Java, .NET"/></div>
+        </div>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn primary sm" onclick="saveNewVendor()">Save vendor</button>
+          <button class="btn sm" onclick="toggleAddVendor()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Step 2 &mdash; Upload mode</div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button class="mode-btn active" id="mode-single-btn" onclick="setMode('single')">Single CV</button>
+      <button class="mode-btn" id="mode-bulk-btn" onclick="setMode('bulk')">Bulk upload &mdash; individual rates &amp; skills per CV</button>
+    </div>
+
+    <!-- Single mode fields -->
+    <div id="mode-single">
+      <div class="row2">
+        <div class="field" style="margin-bottom:0">
+          <label>Purchase / buy rate</label>
+          <input type="text" id="purchase-rate" placeholder="e.g. 45000"/>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label>Sale / bill rate</label>
+          <input type="text" id="sale-rate" placeholder="e.g. 65000"/>
+        </div>
+      </div>
+      <div class="row2" style="margin-top:10px">
+        <div class="field" style="margin-bottom:0">
+          <label>Primary skills (comma separated &mdash; core technical skills)</label>
+          <input type="text" id="primary-skills" placeholder="e.g. Java, Spring Boot, Microservices"/>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label>Secondary skills (comma separated &mdash; supporting skills)</label>
+          <input type="text" id="secondary-skills" placeholder="e.g. SQL, Git, Linux, Agile"/>
+        </div>
+      </div>
+      <div class="field" style="margin-top:10px;margin-bottom:0">
+        <label>Remarks / notes (optional)</label>
+        <textarea id="remarks" rows="2" placeholder="Any special notes about this candidate, submission context, client preference..."></textarea>
+      </div>
+    </div>
+
+    <!-- Bulk mode info -->
+    <div id="mode-bulk" style="display:none">
+      <div class="info-box">Upload multiple CVs below. After uploading, you can set individual rates, primary &amp; secondary skills, and remarks per CV.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Step 3 &mdash; Upload CV(s)</div>
+    <div class="dropzone" id="dz" onclick="document.getElementById('fi').click()" ondragover="doDrag(event,true)" ondragleave="doDrag(event,false)" ondrop="doDrop(event)">
+      <input type="file" id="fi" multiple accept=".pdf,.doc,.docx,.txt" onchange="addFiles(this.files)"/>
+      <h3>Drop CV files here or click to browse</h3>
+      <p>PDF, Word (.doc/.docx) and text files &mdash; multiple files supported</p>
+    </div>
+    <div id="file-list" style="margin-top:10px"></div>
+    <div id="bulk-config" style="display:none;margin-top:14px">
+      <div style="font-size:12px;font-weight:600;color:#1a1a1a;margin-bottom:10px">Set rates, skills &amp; remarks per CV:</div>
+      <div id="bulk-config-list"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Step 4 &mdash; Extract &amp; save</div>
+    <div class="info-box" id="extract-msg">Select a vendor and upload at least one CV to get started.</div>
+    <div class="pbar" id="pbar-wrap" style="display:none"><div class="pfill" id="pfill" style="width:0%"></div></div>
+    <div class="btn-row">
+      <button class="btn primary" id="extract-btn" onclick="startExtract()" disabled>Extract &amp; save to tracker</button>
+      <span id="extract-spinner" style="display:none"><span class="spinner"></span></span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ VENDORS TAB ============ -->
+<div class="tab-content" id="tab-vendors">
+  <div class="panel">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="panel-title" style="margin-bottom:0">Vendor master list</div>
+      <button class="btn sm primary" onclick="switchTab('upload');setTimeout(()=>{if(!addingVendor)toggleAddVendor()},150)">+ Add vendor</button>
+    </div>
+    <div id="vendor-master-list"><div style="font-size:13px;color:#888">No vendors saved yet.</div></div>
+  </div>
+</div>
+
+<!-- ============ RESULTS TAB ============ -->
+<div class="tab-content" id="tab-results">
+  <div class="metric-grid">
+    <div class="metric"><div class="metric-val" id="m-cvs">0</div><div class="metric-lbl">CVs processed</div></div>
+    <div class="metric"><div class="metric-val" id="m-vendors">0</div><div class="metric-lbl">Vendors</div></div>
+    <div class="metric"><div class="metric-val" id="m-techs">0</div><div class="metric-lbl">Technologies</div></div>
+    <div class="metric"><div class="metric-val" id="m-margin">&#8212;</div><div class="metric-lbl">Avg margin</div></div>
+    <div class="metric"><div class="metric-val" id="m-interviews">0</div><div class="metric-lbl">Interviews logged</div></div>
+  </div>
+  <div class="panel">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="panel-title" style="margin-bottom:0">All extracted CVs</div>
+      <button class="btn sm" onclick="exportCSV()">Download CSV</button>
+    </div>
+    <div class="tbl-wrap" id="results-wrap"><div style="font-size:13px;color:#888">No data yet.</div></div>
+  </div>
+</div>
+
+<!-- ============ INTERVIEW TRACKER TAB ============ -->
+<div class="tab-content" id="tab-interviews">
+  <div class="panel">
+    <div class="panel-title">Log a new interview</div>
+    <div class="row3">
+      <div class="field">
+        <label>Candidate (from tracker)</label>
+        <select id="iv-candidate">
+          <option value="">&#8212; select candidate &#8212;</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Client / company name *</label>
+        <input type="text" id="iv-client" placeholder="e.g. Infosys, Google, TCS"/>
+      </div>
+      <div class="field">
+        <label>Interview round</label>
+        <select id="iv-round">
+          <option value="Round 1 - Technical">Round 1 &mdash; Technical</option>
+          <option value="Round 2 - Technical">Round 2 &mdash; Technical</option>
+          <option value="Round 3 - Managerial">Round 3 &mdash; Managerial</option>
+          <option value="HR Round">HR Round</option>
+          <option value="Final Round">Final Round</option>
+          <option value="Client Round">Client Round</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="row3">
+      <div class="field">
+        <label>Date &amp; time of interview</label>
+        <input type="datetime-local" id="iv-datetime"/>
+      </div>
+      <div class="field">
+        <label>Outcome / status</label>
+        <select id="iv-status">
+          <option value="pending">Pending / Scheduled</option>
+          <option value="selected">Selected / Cleared</option>
+          <option value="rejected">Rejected</option>
+          <option value="hold">On Hold</option>
+          <option value="offered">Offer Made</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Interviewer name (optional)</label>
+        <input type="text" id="iv-interviewer" placeholder="e.g. Mr. Sharma"/>
+      </div>
+    </div>
+    <div class="field">
+      <label>Interview feedback / remarks</label>
+      <textarea id="iv-feedback" rows="3" placeholder="Detailed feedback, areas of improvement, interviewer comments, salary discussed..."></textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn primary" onclick="logInterview()">Save interview log</button>
+      <button class="btn" onclick="clearIVForm()">Clear form</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div class="panel-title" style="margin-bottom:0">Interview history</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <label style="margin-bottom:0;font-size:12px;color:#666">Filter:</label>
+        <select id="iv-filter-candidate" onchange="renderInterviews()" style="width:170px">
+          <option value="">All candidates</option>
+        </select>
+        <select id="iv-filter-client" onchange="renderInterviews()" style="width:150px">
+          <option value="">All clients</option>
+        </select>
+        <button class="btn sm" onclick="exportInterviewCSV()">Download CSV</button>
+      </div>
+    </div>
+    <div id="interview-list"><div style="font-size:13px;color:#888">No interviews logged yet. Log one above.</div></div>
+  </div>
+</div>
+
+<!-- ============ EXPORT TAB ============ -->
+<div class="tab-content" id="tab-export">
+  <div class="panel">
+    <div class="panel-title">Google Sheets connection</div>
+    <div class="row2">
+      <div class="field"><label>Google Sheet URL</label><input type="text" id="sheet-url" placeholder="https://docs.google.com/spreadsheets/d/..."/></div>
+      <div class="field"><label>CV data tab name</label><input type="text" id="sheet-tab" value="CV Tracker"/></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Vendor master tab name</label><input type="text" id="vendor-tab" value="Vendors"/></div>
+      <div class="field"><label>Interview tracker tab name</label><input type="text" id="iv-tab" value="Interview Tracker"/></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Generate Apps Script</div>
+    <div class="info-box">Generates a script for Google Apps Script editor. Paste it in your sheet via Extensions &rarr; Apps Script &rarr; press Ctrl+S &rarr; select pushAllData &rarr; click Run.</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <div style="background:#f8f7f2;border:1px solid #e0dfd8;border-radius:8px;padding:10px 14px;font-size:12px;flex:1;min-width:130px"><strong>Step A</strong><br>Extensions &rarr; Apps Script</div>
+      <div style="background:#f8f7f2;border:1px solid #e0dfd8;border-radius:8px;padding:10px 14px;font-size:12px;flex:1;min-width:130px"><strong>Step B</strong><br>Ctrl+A &rarr; Delete &rarr; paste below</div>
+      <div style="background:#f8f7f2;border:1px solid #e0dfd8;border-radius:8px;padding:10px 14px;font-size:12px;flex:1;min-width:130px"><strong>Step C</strong><br>Ctrl+S &rarr; select pushAllData &rarr; Run &rarr; Allow</div>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px">
+      <button class="btn primary" onclick="genScript()">Generate Apps Script</button>
+      <button class="btn success" id="copy-btn" onclick="copyScript()" style="display:none">Copy script</button>
+      <span id="copy-ok" style="font-size:12px;color:#27500A;display:none">&#10003; Copied!</span>
+    </div>
+    <div id="script-out" style="display:none">
+      <label style="display:block;margin-bottom:6px">Paste this into Apps Script editor:</label>
+      <textarea class="script-area" id="script-code" readonly></textarea>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Download as CSV</div>
+    <div class="btn-row">
+      <button class="btn primary" onclick="exportCSV()">CV data CSV</button>
+      <button class="btn blue" onclick="exportInterviewCSV()">Interview log CSV</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- Edit interview modal -->
+<div class="modal-bg" id="iv-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeIVModal()">&#215;</button>
+    <div class="modal-title">Edit interview log</div>
+    <input type="hidden" id="edit-iv-id"/>
+    <div class="row2">
+      <div class="field"><label>Client / company</label><input type="text" id="edit-iv-client"/></div>
+      <div class="field"><label>Round</label>
+        <select id="edit-iv-round">
+          <option>Round 1 - Technical</option><option>Round 2 - Technical</option>
+          <option>Round 3 - Managerial</option><option>HR Round</option>
+          <option>Final Round</option><option>Client Round</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Date &amp; time</label><input type="datetime-local" id="edit-iv-datetime"/></div>
+      <div class="field"><label>Outcome</label>
+        <select id="edit-iv-status">
+          <option value="pending">Pending / Scheduled</option>
+          <option value="selected">Selected / Cleared</option>
+          <option value="rejected">Rejected</option>
+          <option value="hold">On Hold</option>
+          <option value="offered">Offer Made</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Interviewer</label><input type="text" id="edit-iv-interviewer"/></div>
+    <div class="field"><label>Feedback</label><textarea id="edit-iv-feedback" rows="4"></textarea></div>
+    <div class="btn-row">
+      <button class="btn primary" onclick="saveEditedIV()">Save changes</button>
+      <button class="btn" onclick="closeIVModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var vendors    = JSON.parse(localStorage.getItem('cvt_vendors')||'[]');
+var results    = JSON.parse(localStorage.getItem('cvt_results')||'[]');
+var interviews = JSON.parse(localStorage.getItem('cvt_interviews')||'[]');
+var uploadedFiles = [];
+var addingVendor  = false;
+var uploadMode    = 'single';
+var apiKey = localStorage.getItem('cvt_apikey')||'';
+
+// ── API KEY ──
+function saveApiKey(){
+  var k=document.getElementById('api-key-input').value.trim();
+  if(!k){alert('Please paste your API key.');return;}
+  apiKey=k;localStorage.setItem('cvt_apikey',k);showApiSaved();
+}
+function showApiSaved(){
+  if(!apiKey)return;
+  document.getElementById('api-input-row').style.display='none';
+  document.getElementById('api-saved-msg').style.display='flex';
+  document.getElementById('api-status-top').textContent='API key active';
+  document.getElementById('api-status-top').style.cssText='background:#eaf3de;color:#27500A';
+}
+function clearApiKey(){
+  apiKey='';localStorage.removeItem('cvt_apikey');
+  document.getElementById('api-key-input').value='';
+  document.getElementById('api-input-row').style.display='flex';
+  document.getElementById('api-saved-msg').style.display='none';
+  document.getElementById('api-status-top').textContent='API key not set';
+  document.getElementById('api-status-top').style.cssText='';
+}
+if(apiKey)showApiSaved();
+
+// ── TABS ──
+function switchTab(t){
+  document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(el){el.classList.remove('active');});
+  document.getElementById('tab-'+t).classList.add('active');
+  var idx={upload:0,vendors:1,results:2,interviews:3,export:4}[t];
+  document.querySelectorAll('.tab')[idx].classList.add('active');
+  if(t==='vendors')renderVendorMaster();
+  if(t==='results')renderResultsTable();
+  if(t==='interviews'){refreshCandidateSelects();renderInterviews();}
+}
+
+// ── UPLOAD MODE ──
+function setMode(m){
+  uploadMode=m;
+  document.getElementById('mode-single').style.display=m==='single'?'block':'none';
+  document.getElementById('mode-bulk').style.display=m==='bulk'?'block':'none';
+  document.getElementById('mode-single-btn').className='mode-btn'+(m==='single'?' active':'');
+  document.getElementById('mode-bulk-btn').className='mode-btn'+(m==='bulk'?' active':'');
+  renderBulkConfig();
+}
+
+// ── VENDOR ──
+function refreshVendorSelect(){
+  var sel=document.getElementById('vendor-select');
+  var cur=sel.value;
+  sel.innerHTML='<option value="">&#8212; choose a vendor &#8212;</option>'+
+    vendors.map(function(v,i){return '<option value="'+i+'">'+esc(v.name)+' | '+esc(v.phone)+'</option>';}).join('');
+  if(cur!==''&&vendors[parseInt(cur)])sel.value=cur;
+  saveState();
+}
+function onVendorSelect(){
+  var i=document.getElementById('vendor-select').value;
+  var vp=document.getElementById('v-preview');
+  if(i===''){vp.style.display='none';checkReady();return;}
+  var v=vendors[parseInt(i)];
+  vp.style.display='block';
+  vp.innerHTML='<div class="vendor-card"><div class="v-avatar">'+v.name.slice(0,2).toUpperCase()+'</div><div class="v-info"><div class="v-name">'+esc(v.name)+' <span class="badge saved">SAVED</span></div><div class="v-sub">'+esc(v.email)+' | '+esc(v.phone)+(v.tech?' | '+esc(v.tech):'')+'</div></div></div>';
+  checkReady();
+}
+function toggleAddVendor(){
+  addingVendor=!addingVendor;
+  document.getElementById('new-vendor-form').style.display=addingVendor?'block':'none';
+  document.getElementById('add-vendor-btn').textContent=addingVendor?'Cancel':'+ Add new vendor';
+}
+function saveNewVendor(){
+  var name=document.getElementById('nv-name').value.trim();
+  var phone=document.getElementById('nv-phone').value.trim();
+  var email=document.getElementById('nv-email').value.trim();
+  if(!name||!phone||!email){alert('Name, phone and email are required.');return;}
+  var dup=vendors.find(function(v){return v.email.toLowerCase()===email.toLowerCase();});
+  if(dup){alert('Vendor with this email already exists: '+dup.name);return;}
+  vendors.push({name:name,phone:phone,email:email,company:document.getElementById('nv-company').value.trim(),tech:document.getElementById('nv-tech').value.trim(),addedOn:new Date().toLocaleDateString('en-IN')});
+  saveState();refreshVendorSelect();
+  document.getElementById('vendor-select').value=vendors.length-1;
+  ['nv-name','nv-phone','nv-email','nv-company','nv-tech'].forEach(function(id){document.getElementById(id).value='';});
+  addingVendor=false;
+  document.getElementById('new-vendor-form').style.display='none';
+  document.getElementById('add-vendor-btn').textContent='+ Add new vendor';
+  onVendorSelect();
+}
+function renderVendorMaster(){
+  var el=document.getElementById('vendor-master-list');
+  if(!vendors.length){el.innerHTML='<div style="font-size:13px;color:#888">No vendors saved yet.</div>';return;}
+  el.innerHTML=vendors.map(function(v,i){
+    return '<div class="vendor-card"><div class="v-avatar">'+v.name.slice(0,2).toUpperCase()+'</div><div class="v-info"><div class="v-name">'+esc(v.name)+'</div><div class="v-sub">'+esc(v.email)+' | '+esc(v.phone)+(v.company?' | '+esc(v.company):'')+(v.tech?' | '+esc(v.tech):'')+'</div></div><div style="font-size:11px;color:#aaa;margin-right:8px">'+(v.addedOn||'')+'</div><button class="btn sm danger" onclick="deleteVendor('+i+')">Remove</button></div>';
+  }).join('');
+}
+function deleteVendor(i){
+  if(!confirm('Remove vendor: '+vendors[i].name+'?'))return;
+  vendors.splice(i,1);saveState();refreshVendorSelect();renderVendorMaster();
+}
+
+// ── FILE UPLOAD ──
+function doDrag(e,over){e.preventDefault();document.getElementById('dz').classList.toggle('over',over);}
+function doDrop(e){e.preventDefault();doDrag(e,false);addFiles(e.dataTransfer.files);}
+function addFiles(fl){
+  Array.from(fl).forEach(function(f){if(!uploadedFiles.find(function(x){return x.name===f.name;}))uploadedFiles.push(f);});
+  renderFiles();renderBulkConfig();checkReady();
+}
+function removeFile(i){uploadedFiles.splice(i,1);renderFiles();renderBulkConfig();checkReady();}
+function renderFiles(){
+  var el=document.getElementById('file-list');
+  if(!uploadedFiles.length){el.innerHTML='';return;}
+  el.innerHTML=uploadedFiles.map(function(f,i){
+    var ext=f.name.split('.').pop().toLowerCase();
+    var sz=f.size>1048576?(f.size/1048576).toFixed(1)+'MB':Math.round(f.size/1024)+'KB';
+    return '<div class="file-chip"><div class="fext '+(ext==='pdf'?'pdf':'doc')+'">'+ext.toUpperCase()+'</div><div class="fname">'+esc(f.name)+'</div><div class="fsz">'+sz+'</div><button class="rmv" onclick="removeFile('+i+')">&#215;</button></div>';
+  }).join('');
+}
+function renderBulkConfig(){
+  var wrap=document.getElementById('bulk-config');
+  var list=document.getElementById('bulk-config-list');
+  if(uploadMode!=='bulk'||!uploadedFiles.length){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  list.innerHTML=uploadedFiles.map(function(f,i){
+    var ext=f.name.split('.').pop().toLowerCase();
+    return '<div class="bulk-file-row"><div class="bulk-file-name"><span class="fext '+(ext==='pdf'?'pdf':'doc')+'" style="width:22px;height:22px;font-size:9px">'+ext.toUpperCase()+'</span>'+esc(f.name)+'</div>'+
+      '<div class="row4">'+
+        '<div class="field" style="margin-bottom:0"><label>Buy rate</label><input type="text" id="bulk-pr-'+i+'" placeholder="45000"/></div>'+
+        '<div class="field" style="margin-bottom:0"><label>Sale rate</label><input type="text" id="bulk-sr-'+i+'" placeholder="65000"/></div>'+
+        '<div class="field" style="margin-bottom:0"><label>Primary skills</label><input type="text" id="bulk-ps-'+i+'" placeholder="Java, Spring Boot"/></div>'+
+        '<div class="field" style="margin-bottom:0"><label>Secondary skills</label><input type="text" id="bulk-ss-'+i+'" placeholder="SQL, Git"/></div>'+
+      '</div>'+
+      '<div class="field" style="margin-top:8px;margin-bottom:0"><label>Remarks</label><input type="text" id="bulk-rm-'+i+'" placeholder="Optional notes..."/></div>'+
+    '</div>';
+  }).join('');
+}
+function checkReady(){
+  var vendorOk=document.getElementById('vendor-select').value!=='';
+  var filesOk=uploadedFiles.length>0;
+  document.getElementById('extract-btn').disabled=!(vendorOk&&filesOk);
+  var msg=document.getElementById('extract-msg');
+  if(!apiKey)msg.innerHTML='<strong>API key not set.</strong> Add your key above first.';
+  else if(!vendorOk&&!filesOk)msg.textContent='Select a vendor and upload at least one CV.';
+  else if(!vendorOk)msg.textContent='Please select or add a vendor.';
+  else if(!filesOk)msg.textContent='Please upload at least one CV file.';
+  else msg.textContent='Ready to extract '+uploadedFiles.length+' CV(s) for '+vendors[parseInt(document.getElementById('vendor-select').value)].name+'.';
+}
+
+// ── EXTRACTION ──
+async function startExtract(){
+  if(!apiKey){alert('Please save your API key first.');return;}
+  var vi=parseInt(document.getElementById('vendor-select').value);
+  var vendor=vendors[vi];
+  var btn=document.getElementById('extract-btn');
+  btn.disabled=true;
+  document.getElementById('extract-spinner').style.display='inline-block';
+  document.getElementById('pbar-wrap').style.display='block';
+  var msg=document.getElementById('extract-msg');
+
+  for(var i=0;i<uploadedFiles.length;i++){
+    var f=uploadedFiles[i];
+    msg.innerHTML='<span class="spinner"></span>&nbsp; Processing '+(i+1)+'/'+uploadedFiles.length+': <strong>'+esc(f.name)+'</strong>';
+    document.getElementById('pfill').style.width=Math.round((i/uploadedFiles.length)*100)+'%';
+    var pr='',sr='',ps='',ss='',rm='';
+    if(uploadMode==='single'){
+      pr=document.getElementById('purchase-rate').value.trim();
+      sr=document.getElementById('sale-rate').value.trim();
+      ps=document.getElementById('primary-skills').value.trim();
+      ss=document.getElementById('secondary-skills').value.trim();
+      rm=document.getElementById('remarks').value.trim();
+    } else {
+      var prEl=document.getElementById('bulk-pr-'+i); pr=prEl?prEl.value.trim():'';
+      var srEl=document.getElementById('bulk-sr-'+i); sr=srEl?srEl.value.trim():'';
+      var psEl=document.getElementById('bulk-ps-'+i); ps=psEl?psEl.value.trim():'';
+      var ssEl=document.getElementById('bulk-ss-'+i); ss=ssEl?ssEl.value.trim():'';
+      var rmEl=document.getElementById('bulk-rm-'+i); rm=rmEl?rmEl.value.trim():'';
+    }
+    var data=await extractOne(f,vendor,pr,sr,ps,ss,rm);
+    results.push(data);
+  }
+
+  document.getElementById('pfill').style.width='100%';
+  saveState();updateMetrics();
+  msg.innerHTML='<strong style="color:#27500A">&#10003; Done!</strong> '+uploadedFiles.length+' CV(s) saved. <a href="#" onclick="switchTab(\'results\');return false">View results &rarr;</a>';
+  uploadedFiles=[];renderFiles();renderBulkConfig();
+  document.getElementById('vendor-select').value='';
+  document.getElementById('v-preview').style.display='none';
+  ['purchase-rate','sale-rate','primary-skills','secondary-skills','remarks'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('extract-spinner').style.display='none';
+  btn.disabled=true;
+  setTimeout(function(){document.getElementById('pfill').style.width='0%';document.getElementById('pbar-wrap').style.display='none';},2000);
+}
+
+async function extractOne(file,vendor,pr,sr,manualPS,manualSS,remarks){
+  var text='';
+  try{
+    text=await new Promise(function(res){
+      var r=new FileReader();
+      r.onload=function(e){res(e.target.result||'');};
+      r.onerror=function(){res('');};
+      r.readAsText(file);
+    });
+  }catch(e){text='';}
+
+  var prompt='You are a professional resume parser. Extract the following fields from the CV text below.\nReturn ONLY a valid JSON object, no markdown, no explanation.\nFields:\n- candidateName\n- candidateEmail\n- candidatePhone\n- experienceYears (number only)\n- technologyStack (comma-separated)\n- primarySkills (comma-separated core technical skills)\n- secondarySkills (comma-separated supporting skills)\n- currentCompany\n- location\n- noticePeriod\nReturn empty string for missing fields.\nCV text:\n'+text.slice(0,4000);
+
+  var parsed={};
+  try{
+    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,messages:[{role:'user',content:prompt}]})
+    });
+    if(!resp.ok){var err=await resp.json().catch(function(){return{};});throw new Error((err.error&&err.error.message)||'API error '+resp.status);}
+    var d=await resp.json();
+    var raw=(d.content||[]).map(function(x){return x.text||'';}).join('').replace(/```json|```/g,'').trim();
+    parsed=JSON.parse(raw);
+  }catch(e){
+    parsed={candidateName:file.name.replace(/\.[^.]+$/,''),candidateEmail:'',candidatePhone:'',experienceYears:'',technologyStack:'',primarySkills:'',secondarySkills:'',currentCompany:'',location:'',noticePeriod:'',_error:e.message};
+  }
+
+  if(manualPS)parsed.primarySkills=manualPS;
+  if(manualSS)parsed.secondarySkills=manualSS;
+
+  return {
+    id:Date.now()+'_'+Math.random().toString(36).slice(2,6),
+    fileName:file.name,
+    vendorName:vendor.name,vendorPhone:vendor.phone,vendorEmail:vendor.email,
+    purchaseRate:pr,saleRate:sr,
+    candidateName:parsed.candidateName||'',
+    candidateEmail:parsed.candidateEmail||'',
+    candidatePhone:parsed.candidatePhone||'',
+    experienceYears:parsed.experienceYears||'',
+    technologyStack:parsed.technologyStack||'',
+    primarySkills:parsed.primarySkills||'',
+    secondarySkills:parsed.secondarySkills||'',
+    currentCompany:parsed.currentCompany||'',
+    location:parsed.location||'',
+    noticePeriod:parsed.noticePeriod||'',
+    remarks:remarks||'',
+    extractedOn:new Date().toLocaleDateString('en-IN'),
+    _error:parsed._error||''
+  };
+}
+
+// ── RESULTS TABLE ──
+function renderResultsTable(){
+  var el=document.getElementById('results-wrap');
+  updateMetrics();
+  if(!results.length){el.innerHTML='<div style="font-size:13px;color:#888">No data yet.</div>';return;}
+  var cols=[
+    {k:'candidateName',l:'Candidate',w:'10%'},
+    {k:'candidateEmail',l:'Email',w:'11%'},
+    {k:'candidatePhone',l:'Phone',w:'8%'},
+    {k:'experienceYears',l:'Exp',w:'4%'},
+    {k:'primarySkills',l:'Primary skills',w:'12%'},
+    {k:'secondarySkills',l:'Secondary skills',w:'11%'},
+    {k:'technologyStack',l:'Tech stack',w:'11%'},
+    {k:'vendorName',l:'Vendor',w:'8%'},
+    {k:'purchaseRate',l:'Buy',w:'5%'},
+    {k:'saleRate',l:'Sale',w:'5%'},
+    {k:'remarks',l:'Remarks',w:'8%'},
+    {k:'extractedOn',l:'Date',w:'6%'}
+  ];
+  var rows=results.map(function(r,ri){
+    var cells=cols.map(function(c){
+      var v=r[c.k]||'';
+      if(c.k==='primarySkills')return '<td title="'+esc(v)+'">'+tagsHtml(v,'blue',3)+'</td>';
+      if(c.k==='secondarySkills')return '<td title="'+esc(v)+'">'+tagsHtml(v,'purple',3)+'</td>';
+      if(c.k==='technologyStack')return '<td title="'+esc(v)+'">'+tagsHtml(v,'teal',2)+'</td>';
+      if(c.k==='vendorName')return '<td><span class="tag gray">'+esc(v)+'</span></td>';
+      if(c.k==='purchaseRate')return '<td style="color:#a32d2d;font-weight:500">'+esc(v||'—')+'</td>';
+      if(c.k==='saleRate')return '<td style="color:#27500A;font-weight:500">'+esc(v||'—')+'</td>';
+      if(c.k==='remarks')return '<td title="'+esc(v)+'" style="color:#666;font-style:italic">'+esc((v||'').slice(0,28))+(v.length>28?'&hellip;':'')+'</td>';
+      return '<td title="'+esc(String(v))+'">'+esc(String(v||'—'))+'</td>';
+    }).join('');
+    return '<tr>'+cells+'<td style="white-space:nowrap"><button class="btn sm blue" style="margin-bottom:2px" onclick="quickLogInterview(\''+ri+'\')">+ Interview</button> <button class="btn sm danger" onclick="deleteResult('+ri+')">&#215;</button></td></tr>';
+  }).join('');
+  el.innerHTML='<table class="tbl"><thead><tr>'+cols.map(function(c){return '<th style="width:'+c.w+'">'+c.l+'</th>';}).join('')+'<th style="width:5%">Actions</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+function tagsHtml(v,cls,max){
+  var parts=String(v||'').split(',').filter(Boolean).slice(0,max||2);
+  return parts.length?parts.map(function(s){return '<span class="tag '+cls+'">'+esc(s.trim())+'</span>';}).join(''):'<span style="color:#aaa">&#8212;</span>';
+}
+function deleteResult(i){
+  if(!confirm('Remove this CV entry?'))return;
+  results.splice(i,1);saveState();renderResultsTable();
+}
+function quickLogInterview(ri){
+  var r=results[parseInt(ri)];
+  switchTab('interviews');
+  setTimeout(function(){
+    refreshCandidateSelects();
+    var sel=document.getElementById('iv-candidate');
+    for(var i=0;i<sel.options.length;i++){
+      if(sel.options[i].value===r.id){sel.value=r.id;break;}
+    }
+  },120);
+}
+function updateMetrics(){
+  document.getElementById('m-cvs').textContent=results.length;
+  var vs={}; results.forEach(function(r){vs[r.vendorEmail]=1;});
+  document.getElementById('m-vendors').textContent=Object.keys(vs).length;
+  var ts={}; results.forEach(function(r){(r.technologyStack||'').split(',').forEach(function(s){if(s.trim())ts[s.trim()]=1;});});
+  document.getElementById('m-techs').textContent=Object.keys(ts).length;
+  var margins=[]; results.forEach(function(r){
+    if(r.purchaseRate&&r.saleRate){
+      var p=parseFloat(r.purchaseRate.toString().replace(/[^0-9.]/g,'')||'0');
+      var s=parseFloat(r.saleRate.toString().replace(/[^0-9.]/g,'')||'0');
+      if(p>0)margins.push(Math.round((s-p)/p*100));
+    }
+  });
+  document.getElementById('m-margin').textContent=margins.length?Math.round(margins.reduce(function(a,b){return a+b;},0)/margins.length)+'%':'&#8212;';
+  document.getElementById('m-interviews').textContent=interviews.length;
+}
+
+// ── INTERVIEW TRACKER ──
+function refreshCandidateSelects(){
+  var opts='<option value="">&#8212; select candidate &#8212;</option>'+
+    results.map(function(r){return '<option value="'+r.id+'">'+esc(r.candidateName||r.fileName)+'</option>';}).join('');
+  document.getElementById('iv-candidate').innerHTML=opts;
+  var fopts='<option value="">All candidates</option>'+
+    results.map(function(r){return '<option value="'+r.id+'">'+esc(r.candidateName||r.fileName)+'</option>';}).join('');
+  document.getElementById('iv-filter-candidate').innerHTML=fopts;
+  var clients={};
+  interviews.forEach(function(iv){if(iv.client)clients[iv.client]=1;});
+  var copts='<option value="">All clients</option>'+
+    Object.keys(clients).map(function(c){return '<option value="'+esc(c)+'">'+esc(c)+'</option>';}).join('');
+  document.getElementById('iv-filter-client').innerHTML=copts;
+}
+function logInterview(){
+  var cid=document.getElementById('iv-candidate').value;
+  if(!cid){alert('Please select a candidate.');return;}
+  var client=document.getElementById('iv-client').value.trim();
+  if(!client){alert('Please enter client name.');return;}
+  var candidate=results.find(function(r){return r.id===cid;});
+  var entry={
+    id:Date.now()+'_'+Math.random().toString(36).slice(2,6),
+    candidateId:cid,
+    candidateName:candidate?(candidate.candidateName||candidate.fileName):'',
+    vendorName:candidate?candidate.vendorName:'',
+    client:client,
+    round:document.getElementById('iv-round').value,
+    datetime:document.getElementById('iv-datetime').value,
+    status:document.getElementById('iv-status').value,
+    interviewer:document.getElementById('iv-interviewer').value.trim(),
+    feedback:document.getElementById('iv-feedback').value.trim(),
+    loggedOn:new Date().toLocaleDateString('en-IN')
+  };
+  interviews.push(entry);
+  saveState();updateMetrics();
+  refreshCandidateSelects();
+  renderInterviews();
+  clearIVForm();
+  document.getElementById('interview-list').scrollIntoView({behavior:'smooth'});
+}
+function clearIVForm(){
+  document.getElementById('iv-candidate').selectedIndex=0;
+  document.getElementById('iv-round').selectedIndex=0;
+  document.getElementById('iv-status').selectedIndex=0;
+  ['iv-client','iv-datetime','iv-interviewer','iv-feedback'].forEach(function(id){document.getElementById(id).value='';});
+}
+function renderInterviews(){
+  var el=document.getElementById('interview-list');
+  var fcid=document.getElementById('iv-filter-candidate').value;
+  var fclient=document.getElementById('iv-filter-client').value;
+  var list=interviews.slice();
+  if(fcid)list=list.filter(function(iv){return iv.candidateId===fcid;});
+  if(fclient)list=list.filter(function(iv){return iv.client===fclient;});
+  if(!list.length){el.innerHTML='<div style="font-size:13px;color:#888">No interviews logged yet.</div>';return;}
+  var grouped={};
+  list.forEach(function(iv){
+    if(!grouped[iv.candidateId])grouped[iv.candidateId]={name:iv.candidateName,vendor:iv.vendorName,items:[]};
+    grouped[iv.candidateId].items.push(iv);
+  });
+  el.innerHTML=Object.values(grouped).map(function(g){
+    var rounds=g.items.sort(function(a,b){return new Date(b.datetime||b.loggedOn)-new Date(a.datetime||a.loggedOn);});
+    var clientList=[...new Set(rounds.map(function(r){return r.client;}))];
+    return '<div class="interview-card">'+
+      '<div class="interview-card-head">'+
+        '<div><div style="font-size:14px;font-weight:600;color:#1a1a1a">'+esc(g.name)+'</div>'+
+        '<div style="font-size:11px;color:#888;margin-top:2px">Vendor: '+esc(g.vendor)+' &nbsp;|&nbsp; '+rounds.length+' round(s)</div></div>'+
+        '<div style="display:flex;gap:5px;flex-wrap:wrap">'+clientList.map(function(c){return '<span class="tag gray">'+esc(c)+'</span>';}).join('')+'</div>'+
+      '</div>'+
+      '<div class="timeline">'+
+        rounds.map(function(iv){
+          return '<div class="tl-item">'+
+            '<div class="tl-dot" style="background:'+statusColor(iv.status)+'"></div>'+
+            '<div class="tl-row">'+
+              '<span style="font-size:12px;font-weight:600;color:#1a1a1a">'+esc(iv.round)+'</span>'+
+              '<span class="tag gray" style="font-size:10px">'+esc(iv.client)+'</span>'+
+              '<span class="round-badge '+iv.status+'">'+statusLabel(iv.status)+'</span>'+
+              (iv.datetime?'<span style="font-size:11px;color:#aaa">'+fmtDT(iv.datetime)+'</span>':'')+
+              (iv.interviewer?'<span style="font-size:11px;color:#888">by '+esc(iv.interviewer)+'</span>':'')+
+              '<button class="btn sm" style="margin-left:auto;font-size:11px" onclick="openEditIV(\''+iv.id+'\')">Edit</button>'+
+              '<button class="btn sm danger" style="font-size:11px" onclick="deleteIV(\''+iv.id+'\')">&#215;</button>'+
+            '</div>'+
+            (iv.feedback?'<div class="tl-feedback">'+esc(iv.feedback)+'</div>':'')+
+          '</div>';
+        }).join('')+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+function statusColor(s){return{selected:'#1D9E75',rejected:'#E24B4A',hold:'#EF9F27',offered:'#0F6E56',pending:'#888780'}[s]||'#888';}
+function statusLabel(s){return{selected:'Selected',rejected:'Rejected',hold:'On Hold',offered:'Offer Made',pending:'Scheduled'}[s]||s;}
+function fmtDT(dt){
+  if(!dt)return'';
+  try{return new Date(dt).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+  catch(e){return dt;}
+}
+function deleteIV(id){
+  if(!confirm('Delete this interview log?'))return;
+  interviews=interviews.filter(function(iv){return iv.id!==id;});
+  saveState();updateMetrics();refreshCandidateSelects();renderInterviews();
+}
+function openEditIV(id){
+  var iv=interviews.find(function(x){return x.id===id;});
+  if(!iv)return;
+  document.getElementById('edit-iv-id').value=id;
+  document.getElementById('edit-iv-client').value=iv.client||'';
+  document.getElementById('edit-iv-round').value=iv.round||'';
+  document.getElementById('edit-iv-datetime').value=iv.datetime||'';
+  document.getElementById('edit-iv-status').value=iv.status||'pending';
+  document.getElementById('edit-iv-interviewer').value=iv.interviewer||'';
+  document.getElementById('edit-iv-feedback').value=iv.feedback||'';
+  document.getElementById('iv-modal').classList.add('open');
+}
+function closeIVModal(){document.getElementById('iv-modal').classList.remove('open');}
+function saveEditedIV(){
+  var id=document.getElementById('edit-iv-id').value;
+  var iv=interviews.find(function(x){return x.id===id;});
+  if(!iv)return;
+  iv.client=document.getElementById('edit-iv-client').value.trim();
+  iv.round=document.getElementById('edit-iv-round').value;
+  iv.datetime=document.getElementById('edit-iv-datetime').value;
+  iv.status=document.getElementById('edit-iv-status').value;
+  iv.interviewer=document.getElementById('edit-iv-interviewer').value.trim();
+  iv.feedback=document.getElementById('edit-iv-feedback').value.trim();
+  saveState();closeIVModal();renderInterviews();
+}
+
+// ── EXPORT ──
+function genScript(){
+  var cvTab=document.getElementById('sheet-tab').value||'CV Tracker';
+  var vTab=document.getElementById('vendor-tab').value||'Vendors';
+  var ivTab=document.getElementById('iv-tab').value||'Interview Tracker';
+  var vH=['Vendor name','Phone','Email','Company','Tech focus','Added on'];
+  var cvH=['File','Candidate name','Email','Phone','Exp (yrs)','Tech stack','Primary skills','Secondary skills','Company','Location','Notice period','Remarks','Vendor','Vendor phone','Vendor email','Buy rate','Sale rate','Extracted on'];
+  var ivH=['Candidate','Vendor','Client','Round','Date & time','Status','Interviewer','Feedback','Logged on'];
+  var vRows=vendors.map(function(v){return[v.name,v.phone,v.email,v.company||'',v.tech||'',v.addedOn||''];});
+  var cvRows=results.map(function(r){return[r.fileName,r.candidateName,r.candidateEmail,r.candidatePhone,r.experienceYears,r.technologyStack,r.primarySkills,r.secondarySkills,r.currentCompany,r.location,r.noticePeriod,r.remarks,r.vendorName,r.vendorPhone,r.vendorEmail,r.purchaseRate,r.saleRate,r.extractedOn];});
+  var ivRows=interviews.map(function(iv){return[iv.candidateName,iv.vendorName,iv.client,iv.round,fmtDT(iv.datetime),statusLabel(iv.status),iv.interviewer,iv.feedback,iv.loggedOn];});
+
+  var script='function pushAllData() {\n'+
+  '  var ss = SpreadsheetApp.getActiveSpreadsheet();\n\n'+
+  '  // Vendor master\n'+
+  '  var vs = ss.getSheetByName("'+vTab+'") || ss.insertSheet("'+vTab+'");\n'+
+  '  if (vs.getLastRow() === 0) {\n'+
+  '    vs.appendRow('+JSON.stringify(vH)+');\n'+
+  '    vs.getRange(1,1,1,'+vH.length+').setFontWeight("bold").setBackground("#f5f5f0");\n'+
+  '    vs.setFrozenRows(1);\n  }\n'+
+  '  var existingEmails = [];\n'+
+  '  if (vs.getLastRow() > 1) {\n'+
+  '    var ev = vs.getRange(2,3,vs.getLastRow()-1,1).getValues();\n'+
+  '    for (var i=0;i<ev.length;i++) existingEmails.push(ev[i][0].toString().toLowerCase());\n  }\n'+
+  '  var vendorData = '+JSON.stringify(vRows)+';\n'+
+  '  for (var v=0;v<vendorData.length;v++) {\n'+
+  '    if (existingEmails.indexOf(vendorData[v][2].toLowerCase()) === -1) vs.appendRow(vendorData[v]);\n  }\n\n'+
+  '  // CV Tracker\n'+
+  '  var cs = ss.getSheetByName("'+cvTab+'") || ss.insertSheet("'+cvTab+'");\n'+
+  '  if (cs.getLastRow() === 0) {\n'+
+  '    cs.appendRow('+JSON.stringify(cvH)+');\n'+
+  '    cs.getRange(1,1,1,'+cvH.length+').setFontWeight("bold").setBackground("#f5f5f0");\n'+
+  '    cs.setFrozenRows(1);\n  }\n'+
+  '  var cvData = '+JSON.stringify(cvRows)+';\n'+
+  '  for (var c=0;c<cvData.length;c++) cs.appendRow(cvData[c]);\n\n'+
+  '  // Interview Tracker\n'+
+  '  var ivs = ss.getSheetByName("'+ivTab+'") || ss.insertSheet("'+ivTab+'");\n'+
+  '  if (ivs.getLastRow() === 0) {\n'+
+  '    ivs.appendRow('+JSON.stringify(ivH)+');\n'+
+  '    ivs.getRange(1,1,1,'+ivH.length+').setFontWeight("bold").setBackground("#f5f5f0");\n'+
+  '    ivs.setFrozenRows(1);\n  }\n'+
+  '  var ivData = '+JSON.stringify(ivRows)+';\n'+
+  '  for (var iv=0;iv<ivData.length;iv++) ivs.appendRow(ivData[iv]);\n\n'+
+  '  SpreadsheetApp.getUi().alert(\n'+
+  '    "Done!\\n\\n" +\n'+
+  '    cvData.length + " CVs added to \''+cvTab+'\'\\n" +\n'+
+  '    ivData.length + " interview logs added to \''+ivTab+'\'\\n" +\n'+
+  '    "Vendors updated in \''+vTab+'\'"\n'+
+  '  );\n}';
+
+  document.getElementById('script-code').value=script;
+  document.getElementById('script-out').style.display='block';
+  document.getElementById('copy-btn').style.display='inline-block';
+}
+function copyScript(){
+  navigator.clipboard.writeText(document.getElementById('script-code').value).then(function(){
+    var ok=document.getElementById('copy-ok');
+    ok.style.display='inline';
+    setTimeout(function(){ok.style.display='none';},2500);
+  });
+}
+function exportCSV(){
+  if(!results.length){alert('No CV data to export.');return;}
+  var H=['File','Candidate name','Email','Phone','Exp','Tech stack','Primary skills','Secondary skills','Company','Location','Notice period','Remarks','Vendor','Buy rate','Sale rate','Date'];
+  var rows=results.map(function(r){return[r.fileName,r.candidateName,r.candidateEmail,r.candidatePhone,r.experienceYears,r.technologyStack,r.primarySkills,r.secondarySkills,r.currentCompany,r.location,r.noticePeriod,r.remarks,r.vendorName,r.purchaseRate,r.saleRate,r.extractedOn];});
+  downloadCSV([H].concat(rows),'cv-tracker-'+today()+'.csv');
+}
+function exportInterviewCSV(){
+  if(!interviews.length){alert('No interview data to export.');return;}
+  var H=['Candidate','Vendor','Client','Round','Date & time','Status','Interviewer','Feedback','Logged on'];
+  var rows=interviews.map(function(iv){return[iv.candidateName,iv.vendorName,iv.client,iv.round,fmtDT(iv.datetime),statusLabel(iv.status),iv.interviewer,iv.feedback,iv.loggedOn];});
+  downloadCSV([H].concat(rows),'interview-log-'+today()+'.csv');
+}
+function downloadCSV(rows,name){
+  var csv=rows.map(function(r){return r.map(function(v){return'"'+String(v||'').replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=name;a.click();
+}
+function today(){return new Date().toISOString().slice(0,10);}
+
+// ── UTILS ──
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function saveState(){
+  localStorage.setItem('cvt_vendors',JSON.stringify(vendors));
+  localStorage.setItem('cvt_results',JSON.stringify(results));
+  localStorage.setItem('cvt_interviews',JSON.stringify(interviews));
+}
+
+// ── INIT ──
+refreshVendorSelect();
+updateMetrics();
+setMode('single');
+</script>
+</body>
+</html>
